@@ -13,7 +13,8 @@ route.post("/signup", userController.signUpController);
 route.post("/signin", userController.signInController);
 
 // path for google signin
-// route.post("/google-signin", userController.googleSigninController);
+route.post("/google-signin", userController.googleSignInController);
+
 
 // routes export
 module.exports = route;
