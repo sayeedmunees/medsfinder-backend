@@ -2,6 +2,9 @@
 const express = require("express");
 // import userController
 const userController = require("./controller/userController.js");
+const medicineController = require("./controller/medicineController.js");
+const jwtAdminMiddleware = require("./middleware/jwtAdminMiddleware.js");
+const multerConfig = require("./middleware/multerMiddleware.js");
 
 // create instance
 const route = new express.Router();
@@ -15,6 +18,14 @@ route.post("/signin", userController.signInController);
 // path for google signin
 route.post("/google-signin", userController.googleSignInController);
 
+
+// ------ADMIN------------------------
+route.post(
+  "/add-medicine",
+  jwtAdminMiddleware,
+  multerConfig.single("uploadImage"),
+  medicineController.addMedicineController
+);
 
 // routes export
 module.exports = route;

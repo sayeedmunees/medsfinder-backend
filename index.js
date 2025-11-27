@@ -8,7 +8,7 @@ const cors = require("cors");
 // import route
 const route = require("./routes.js");
 // import db connection files
-require("./databaseConnection.js")
+require("./databaseConnection.js");
 
 // create server
 const medsfinderServer = express();
@@ -23,4 +23,8 @@ PORT = 4000 || process.env.PORT;
 
 medsfinderServer.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
+});
+
+medsfinderServer.get("/", (req, res) => {
+  res.status(200).send(`<h1>Server Started!!</h1>`);
 });
