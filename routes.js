@@ -23,7 +23,7 @@ route.post("/google-signin", userController.googleSignInController);
 route.post(
   "/add-medicine",
   jwtAdminMiddleware,
-  multerConfig.single("uploadImage"),
+  multerConfig.array("uploadedImg", 1),
   medicineController.addMedicineController
 );
 

@@ -16,7 +16,7 @@ exports.addMedicineController = async (req, res) => {
 
   try {
     const existingMedicine = await medicines.findOne({
-      title,
+      medicineName,
       userMail: email,
     });
 
