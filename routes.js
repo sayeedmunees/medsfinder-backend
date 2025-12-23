@@ -39,6 +39,21 @@ route.get("/view-medicine/:id", medicineController.getAMedicinesController);
 // path for search medicine
 route.get("/search-medicines", medicineController.searchMedicineController);
 
+// path for update medicine
+route.put(
+  "/update-medicine/:id",
+  jwtAdminMiddleware,
+  multerConfig.single("uploadedImg"),
+  medicineController.updateMedicineController
+);
+
+// path for delete medicine
+route.delete(
+  "/delete-medicine/:id",
+  jwtAdminMiddleware,
+  medicineController.deleteMedicineController
+);
+
 // path for adding pharmacy
 route.post(
   "/add-pharmacy",

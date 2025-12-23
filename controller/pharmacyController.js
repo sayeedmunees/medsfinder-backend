@@ -9,11 +9,17 @@ exports.addPharmacyController = async (req, res) => {
     pharmacyContactNumber,
     pharmacyStatus,
     pharmacyLocationLink,
-    pharmacyLattitude,
-    pharmacyLongitude,
+    pharmacyRating,
+    pharmacyReviews,
+    pharmacyMedicinesInStock,
   } = req.body;
 
   const pharmacyImage = req.file.filename;
+
+  // process medicines stock: split by comma and trim
+  const medicinesArray = pharmacyMedicinesInStock
+    ? pharmacyMedicinesInStock.split(",").map((med) => med.trim())
+    : [];
 
   try {
     const existingPharmacy = await pharmacies.findOne({
@@ -30,12 +36,10 @@ exports.addPharmacyController = async (req, res) => {
         pharmacyContactNumber,
         pharmacyStatus,
         pharmacyLocationLink,
-        pharmacyRating: "4.5", // Default
-        pharmacyReviews: "0", // Default
-        pharmacyMedicinesInStock: [], // Default
+        pharmacyRating,
+        pharmacyReviews: pharmacyReviews || "0", // Default if not provided
+        pharmacyMedicinesInStock: medicinesArray,
         pharmacyImage,
-        pharmacyLattitude,
-        pharmacyLongitude,
       });
 
       await newPharmacy.save();

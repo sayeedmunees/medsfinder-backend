@@ -91,3 +91,50 @@ exports.searchMedicineController = async (req, res) => {
     console.log(err);
   }
 };
+
+// edit medicine
+exports.updateMedicineController = async (req, res) => {
+  const { id } = req.params;
+  const {
+    medicineName,
+    genericName,
+    brandName,
+    category,
+    description,
+    price,
+    uploadedImg,
+  } = req.body;
+
+  const uploadImage = req.file ? req.file.filename : uploadedImg;
+
+  try {
+    const updateMedicine = await medicines.findByIdAndUpdate(
+      { _id: id },
+      {
+        medicineName,
+        genericName,
+        brandName,
+        category,
+        description,
+        price,
+        uploadedImg: uploadImage,
+      },
+      { new: true }
+    );
+    await updateMedicine.save();
+    res.status(200).json(updateMedicine);
+  } catch (err) {
+    res.status(401).json(err);
+  }
+};
+
+// delete medicine
+exports.deleteMedicineController = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const removeMedicine = await medicines.findByIdAndDelete({ _id: id });
+    res.status(200).json(removeMedicine);
+  } catch (err) {
+    res.status(401).json(err);
+  }
+};

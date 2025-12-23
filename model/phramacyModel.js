@@ -34,7 +34,7 @@ const pharmacySchema = new mongoose.Schema({
   },
   pharmacyReviews: {
     type: String,
-    required: true,
+    
   },
   pharmacyImage: {
     type: String,
@@ -43,12 +43,6 @@ const pharmacySchema = new mongoose.Schema({
   pharmacyMedicinesInStock: {
     type: Array,
     required: true,
-  },
-  pharmacyLattitude: {
-    type: Number,
-  },
-  pharmacyLongitude: {
-    type: Number,
   },
   createdAt: { type: Date, default: Date.now },
 });
