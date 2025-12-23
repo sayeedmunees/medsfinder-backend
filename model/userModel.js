@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema({
   address: {
     type: String,
   },
+  savedMedicines: {
+    type: Array,
+  },
+  savedPharmacies: {
+    type: Array,
+  },
 });
 
 const users = mongoose.model("users", userSchema);

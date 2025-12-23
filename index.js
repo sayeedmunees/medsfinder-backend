@@ -18,6 +18,10 @@ medsfinderServer.use(cors());
 medsfinderServer.use(express.json()); //parse middleware
 medsfinderServer.use(route);
 
+// export the uploads folder from the server side
+medsfinderServer.use('/upload', express.static("./uploads"))
+
+
 // create port
 PORT = 4000 || process.env.PORT;
 

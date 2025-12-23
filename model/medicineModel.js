@@ -32,7 +32,7 @@ const medicineSchema = new mongoose.Schema({
     min: 0,
   },
   uploadedImg: {
-    type: Array,
+    type: String,
     required: true,
   },
   createdAt: { type: Date, default: Date.now },
