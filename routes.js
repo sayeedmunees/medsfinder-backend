@@ -62,6 +62,21 @@ route.post(
   pharmacyController.addPharmacyController
 );
 
+// path for update pharmacy
+route.put(
+  "/update-pharmacy/:id",
+  jwtAdminMiddleware,
+  multerConfig.single("pharmacyImage"),
+  pharmacyController.updatePharmacyController
+);
+
+// path for delete pharmacy
+route.delete(
+  "/delete-pharmacy/:id",
+  jwtAdminMiddleware,
+  pharmacyController.deletePharmacyController
+);
+
 // path for getting all pharmacies
 route.get("/all-pharmacies", pharmacyController.getAllPharmaciesController);
 
