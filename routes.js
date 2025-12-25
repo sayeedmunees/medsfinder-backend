@@ -5,6 +5,7 @@ const userController = require("./controller/userController.js");
 const medicineController = require("./controller/medicineController.js");
 const pharmacyController = require("./controller/pharmacyController.js");
 const jwtAdminMiddleware = require("./middleware/jwtAdminMiddleware.js");
+const jwtMiddleware = require("./middleware/jwtMiddleware.js");
 const multerConfig = require("./middleware/multerMiddleware.js");
 
 // create instance
@@ -18,6 +19,18 @@ route.post("/signin", userController.signInController);
 
 // path for google signin
 route.post("/google-signin", userController.googleSignInController);
+
+// path for getting user details
+route.get("/user/profile", jwtMiddleware, userController.getUserProfileController);
+
+// path for updating user details
+route.put("/user/profile/update", jwtMiddleware, userController.updateUserProfileController);
+
+// path for saving medicine
+route.post("/user/save-medicine", jwtMiddleware, userController.toggleSavedMedicineController);
+
+// path for saving pharmacy
+route.post("/user/save-pharmacy", jwtMiddleware, userController.toggleSavedPharmacyController);
 
 
 // ------ADMIN------------------------

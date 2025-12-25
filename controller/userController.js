@@ -71,3 +71,90 @@ exports.googleSignInController = async (req, res) => {
     res.status(500).json(err);
   }
 };
+// get user profile
+exports.getUserProfileController = async (req, res) => {
+  const userMail = req.payload;
+  try {
+    const existingUser = await users.findOne({ email: userMail });
+    if (existingUser) {
+        // Exclude password from response
+        const { password, ...rest } = existingUser._doc;
+        res.status(200).json(rest);
+    } else {
+      res.status(404).json("User not found");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// update user profile
+exports.updateUserProfileController = async (req, res) => {
+  const userMail = req.payload;
+  const { username, phone, address } = req.body;
+  
+  try {
+    const updatedUser = await users.findOneAndUpdate(
+      { email: userMail },
+      {
+        username,
+        phone,
+        address
+      },
+      { new: true }
+    );
+    await updatedUser.save();
+    res.status(200).json(updatedUser);
+  } catch (err) {
+      console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+// toggle saved medicine
+exports.toggleSavedMedicineController = async (req, res) => {
+  const userMail = req.payload;
+  const { medicineId } = req.body;
+  try {
+    const user = await users.findOne({ email: userMail });
+    if (user.savedMedicines.includes(medicineId)) {
+      await users.findOneAndUpdate(
+        { email: userMail },
+        { $pull: { savedMedicines: medicineId } }
+      );
+      res.status(200).json("Medicine Removed from Saved List");
+    } else {
+      await users.findOneAndUpdate(
+        { email: userMail },
+        { $addToSet: { savedMedicines: medicineId } }
+      );
+      res.status(200).json("Medicine Added to Saved List");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// toggle saved pharmacy
+exports.toggleSavedPharmacyController = async (req, res) => {
+  const userMail = req.payload;
+  const { pharmacyId } = req.body;
+  try {
+    const user = await users.findOne({ email: userMail });
+    if (user.savedPharmacies.includes(pharmacyId)) {
+      await users.findOneAndUpdate(
+        { email: userMail },
+        { $pull: { savedPharmacies: pharmacyId } }
+      );
+      res.status(200).json("Pharmacy Removed from Saved List");
+    } else {
+      await users.findOneAndUpdate(
+        { email: userMail },
+        { $addToSet: { savedPharmacies: pharmacyId } }
+      );
+      res.status(200).json("Pharmacy Added to Saved List");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
