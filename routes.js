@@ -32,6 +32,9 @@ route.post("/user/save-medicine", jwtMiddleware, userController.toggleSavedMedic
 // path for saving pharmacy
 route.post("/user/save-pharmacy", jwtMiddleware, userController.toggleSavedPharmacyController);
 
+// path for getting saved items
+route.get("/user/saved-items", jwtMiddleware, userController.getSavedItemsController);
+
 
 // ------ADMIN------------------------
 route.post(

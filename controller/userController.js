@@ -1,4 +1,6 @@
 const users = require("../model/userModel");
+const medicines = require("../model/medicineModel");
+const pharmacies = require("../model/phramacyModel");
 var jwt = require("jsonwebtoken");
 
 // signup
@@ -153,6 +155,27 @@ exports.toggleSavedPharmacyController = async (req, res) => {
         { $addToSet: { savedPharmacies: pharmacyId } }
       );
       res.status(200).json("Pharmacy Added to Saved List");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// get saved items
+exports.getSavedItemsController = async (req, res) => {
+  const userMail = req.payload;
+  try {
+    const user = await users.findOne({ email: userMail });
+    if (user) {
+      const savedMedicines = await medicines.find({
+        _id: { $in: user.savedMedicines },
+      });
+      const savedPharmacies = await pharmacies.find({
+        _id: { $in: user.savedPharmacies },
+      });
+      res.status(200).json({ savedMedicines, savedPharmacies });
+    } else {
+      res.status(404).json("User not found");
     }
   } catch (err) {
     res.status(500).json(err);
