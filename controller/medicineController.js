@@ -79,10 +79,7 @@ exports.searchMedicineController = async (req, res) => {
   console.log("Search term:", search);
   try {
     const query = {
-      $or: [
-        { medicineName: { $regex: search, $options: "i" } },
-        { genericName: { $regex: search, $options: "i" } },
-      ],
+      medicineName: { $regex: search, $options: "i" },
     };
     const searchResults = await medicines.find(query);
     res.status(200).json(searchResults);

@@ -1,6 +1,7 @@
 const users = require("../model/userModel");
 const medicines = require("../model/medicineModel");
 const pharmacies = require("../model/phramacyModel");
+const products = require("../model/productModel");
 var jwt = require("jsonwebtoken");
 
 // signup
@@ -176,6 +177,53 @@ exports.getSavedItemsController = async (req, res) => {
       res.status(200).json({ savedMedicines, savedPharmacies });
     } else {
       res.status(404).json("User not found");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// get admin dashboard stats
+exports.getAdminDashboardStatsController = async (req, res) => {
+  try {
+    const medicineCount = await medicines.countDocuments();
+    const pharmacyCount = await pharmacies.countDocuments();
+    const productCount = await products.countDocuments();
+    const userCount = await users.countDocuments();
+
+    res.status(200).json({
+      medicineCount,
+      pharmacyCount,
+      productCount,
+      userCount,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// update admin profile
+exports.updateAdminProfileController = async (req, res) => {
+  const userMail = req.payload;
+  const { username, password } = req.body;
+
+  try {
+    const updateData = { username };
+    if (password) {
+      updateData.password = password;
+    }
+
+    const updatedAdmin = await users.findOneAndUpdate(
+      { email: userMail },
+      updateData,
+      { new: true }
+    );
+
+    if (updatedAdmin) {
+      const { password, ...rest } = updatedAdmin._doc;
+      res.status(200).json(rest);
+    } else {
+      res.status(404).json("Admin not found");
     }
   } catch (err) {
     res.status(500).json(err);

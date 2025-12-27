@@ -4,6 +4,7 @@ const express = require("express");
 const userController = require("./controller/userController.js");
 const medicineController = require("./controller/medicineController.js");
 const pharmacyController = require("./controller/pharmacyController.js");
+const productController = require("./controller/productController.js");
 const jwtAdminMiddleware = require("./middleware/jwtAdminMiddleware.js");
 const jwtMiddleware = require("./middleware/jwtMiddleware.js");
 const multerConfig = require("./middleware/multerMiddleware.js");
@@ -34,6 +35,12 @@ route.post("/user/save-pharmacy", jwtMiddleware, userController.toggleSavedPharm
 
 // path for getting saved items
 route.get("/user/saved-items", jwtMiddleware, userController.getSavedItemsController);
+
+// path for admin dashboard stats
+route.get("/admin/dashboard-stats", jwtAdminMiddleware, userController.getAdminDashboardStatsController);
+
+// path for updating admin profile
+route.put("/admin/update-profile", jwtAdminMiddleware, userController.updateAdminProfileController);
 
 
 // ------ADMIN------------------------
@@ -96,6 +103,31 @@ route.delete(
 // path for getting all pharmacies
 route.get("/all-pharmacies", pharmacyController.getAllPharmaciesController);
 
-// routes export
+// Product Admin Routes
+route.post(
+  "/add-product",
+  jwtAdminMiddleware,
+  multerConfig.single("uploadedImg"),
+  productController.addProductController
+);
 
+route.get("/all-products", productController.getAllProductsController);
+
+route.put(
+  "/update-product/:id",
+  jwtAdminMiddleware,
+  multerConfig.single("uploadedImg"),
+  productController.updateProductController
+);
+
+route.delete(
+  "/delete-product/:id",
+  jwtAdminMiddleware,
+  productController.deleteProductController
+);
+
+route.get("/view-product/:id", productController.viewProductController);
+route.patch("/increment-product-clicks/:id", productController.incrementProductClicksController);
+
+// routes export
 module.exports = route;
