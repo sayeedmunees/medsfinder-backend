@@ -43,7 +43,7 @@ route.get("/admin/dashboard-stats", jwtAdminMiddleware, userController.getAdminD
 route.put("/admin/update-profile", jwtAdminMiddleware, userController.updateAdminProfileController);
 
 
-// ------ADMIN------------------------
+
 route.post(
   "/add-medicine",
   jwtAdminMiddleware,
