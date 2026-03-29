@@ -2,25 +2,33 @@ const users = require("../model/userModel");
 const medicines = require("../model/medicineModel");
 const pharmacies = require("../model/phramacyModel");
 const products = require("../model/productModel");
-var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // signup
 exports.signUpController = async (req, res) => {
-  // logic
   const { username, email, password } = req.body;
-  console.log({ username, email, password });
   try {
     const existingUser = await users.findOne({ email });
     if (existingUser) {
       res.status(400).json("Existing User");
     } else {
+      // Hash password before saving
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       const newUser = new users({
         username,
         email,
-        password,
+        password: hashedPassword,
       });
-      await newUser.save(); //mongodb save
-      res.status(200).json(newUser);
+      await newUser.save();
+      
+      // Sanitize user object for response
+      const { password: _, ...userData } = newUser._doc;
+      res.status(200).json(userData);
     }
   } catch (err) {
     res.status(500).json(err);
@@ -30,15 +38,21 @@ exports.signUpController = async (req, res) => {
 // signin
 exports.signInController = async (req, res) => {
   const { email, password } = req.body;
-  console.log({ email, password });
   try {
     const existingUser = await users.findOne({ email });
     if (existingUser) {
-      if (existingUser.password == password) {
-        const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, process.env.JWT_SECRET);
-        res.status(200).json({ existingUser, token });
+      // Verify password
+      const validPassword = await bcrypt.compare(password, existingUser.password);
+      if (validPassword) {
+        const token = jwt.sign(
+          { userMail: existingUser.email, role: existingUser.role },
+          process.env.JWT_SECRET
+        );
+        // Sanitize user object
+        const { password: _, ...userData } = existingUser._doc;
+        res.status(200).json({ existingUser: userData, token });
       } else {
-        res.status(401).json("Incorrect Password");
+        res.status(401).json("Incorrect Email/Password");
       }
     } else {
       res.status(404).json("User doesn't exist");
@@ -50,28 +64,49 @@ exports.signInController = async (req, res) => {
 
 // google signin
 exports.googleSignInController = async (req, res) => {
-  const { username, email, password, profile } = req.body;
-  console.log(username, email, password, profile);
+  const { idToken } = req.body;
+  
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    console.error("GOOGLE_CLIENT_ID is missing from .env");
+    return res.status(500).json("Server Configuration Error");
+  }
 
   try {
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    const { name: username, email, picture: profile } = payload;
+
     const existingUser = await users.findOne({ email });
 
     if (existingUser) {
-      const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, process.env.JWT_SECRET);
-      res.status(200).json({ existingUser, token });
+      const token = jwt.sign(
+        { userMail: existingUser.email, role: existingUser.role },
+        process.env.JWT_SECRET
+      );
+      const { password: _, ...userData } = existingUser._doc;
+      res.status(200).json({ existingUser: userData, token });
     } else {
       const newUser = new users({
         username,
         email,
-        password,
+        password: "google_login_no_password", // Placeholder
         profile,
       });
       await newUser.save();
-      const token = jwt.sign({ userMail: newUser.email, role: newUser.role }, process.env.JWT_SECRET);
-      res.status(200).json({ existingUser: newUser, token });
+      const token = jwt.sign(
+        { userMail: newUser.email, role: newUser.role },
+        process.env.JWT_SECRET
+      );
+      const { password: _, ...userData } = newUser._doc;
+      res.status(200).json({ existingUser: userData, token });
     }
   } catch (err) {
-    res.status(500).json(err);
+    console.error("Google Auth Error:", err);
+    res.status(401).json("Invalid Google Token");
   }
 };
 // get user profile

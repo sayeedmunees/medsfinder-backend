@@ -16,7 +16,13 @@ const { globalLimiter } = require("./middleware/rateLimitMiddleware.js");
 const medsfinderServer = express();
 
 // server using cors
-medsfinderServer.use(cors());
+medsfinderServer.use(
+  cors({
+    origin: "http://localhost:5173", // Restrict to your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 medsfinderServer.use(express.json()); //parse middleware
 medsfinderServer.use(globalLimiter); // Apply global rate limit to all requests
 medsfinderServer.use(route);
