@@ -1,42 +1,38 @@
-//  import multer
 const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+require("dotenv").config();
 
-const storage = multer.diskStorage({
-  // path to store data
-  destination: (req, file, callback) => {
-    callback(null, "./uploads");
-  },
-  // name in which file is stored
-  filename: (req, file, callback) => {
-    const fname = `image-${file.originalname}`;
-    callback(null, fname);
-  },
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const fileFilter = (req, file, callback) => {
-  // accepts only jpg, jpeg, png, svg
-  console.log(file);
-
-  if (
-    file.mimetype == "image/jpg" ||
-    file.mimetype == "image/jpeg" ||
-    file.mimetype == "image/png" ||
-    file.mimetype == "image/svg"
-  ) {
-    callback(null, true);
-  } else {
-    callback(null, false);
-    return callback(new Error("Accepts only jpg, jpeg, png, svg"));
-  }
+// Helper function to create storage for a specific folder
+const createStorage = (folderName) => {
+  return new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder: `medsfinder/${folderName}`,
+      allowed_formats: ["jpg", "jpeg", "png", "webp"],
+      public_id: (req, file) => {
+        // Remove spaces and use timestamp for uniqueness
+        const cleanName = file.originalname.split(".")[0].replace(/\s+/g, "-");
+        return `${cleanName}-${Date.now()}`;
+      },
+    },
+  });
 };
 
-console.log(storage);
-console.log(fileFilter);
+// Export specialized uploaders
+const uploadTo = (folderName) => {
+  const storage = createStorage(folderName);
+  return multer({
+    storage,
+    limits: { fileSize: 200 * 1024 }, // 200KB limit
+  });
+};
 
-// create config
-const multerConfig = multer({
-  storage,
-  fileFilter,
-});
-
-module.exports = multerConfig;
+module.exports = { uploadTo };

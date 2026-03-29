@@ -132,7 +132,8 @@ exports.getUserProfileController = async (req, res) => {
 // update user profile
 exports.updateUserProfileController = async (req, res) => {
   const userMail = req.payload;
-  const { username, phone, address } = req.body;
+  const { username, phone, address, profile } = req.body;
+  const profileImg = req.file ? req.file.path : profile;
   
   try {
     const updatedUser = await users.findOneAndUpdate(
@@ -140,15 +141,39 @@ exports.updateUserProfileController = async (req, res) => {
       {
         username,
         phone,
-        address
+        address,
+        profile: profileImg
       },
       { new: true }
     );
-    await updatedUser.save();
-    res.status(200).json(updatedUser);
+    const { password: _, ...userData } = updatedUser._doc;
+    res.status(200).json(userData);
   } catch (err) {
-      console.log(err);
     res.status(500).json(err);
+  }
+};
+
+// update admin profile
+exports.updateAdminProfileController = async (req, res) => {
+  const userMail = req.payload;
+  const { username, phone, address, profile } = req.body;
+  const profileImg = req.file ? req.file.path : profile;
+
+  try {
+      const updatedUser = await users.findOneAndUpdate(
+          { email: userMail },
+          {
+              username,
+              phone,
+              address,
+              profile: profileImg
+          },
+          { new: true }
+      );
+      const { password: _, ...userData } = updatedUser._doc;
+      res.status(200).json(userData);
+  } catch (err) {
+      res.status(500).json(err);
   }
 };
 

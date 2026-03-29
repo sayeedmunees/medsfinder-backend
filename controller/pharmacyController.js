@@ -14,12 +14,14 @@ exports.addPharmacyController = async (req, res) => {
     pharmacyMedicinesInStock,
   } = req.body;
 
-  const pharmacyImage = req.file.filename;
+  const image = req.file ? req.file.path : null;
 
   // process medicines stock: split by comma and trim
-  const medicinesArray = pharmacyMedicinesInStock
-    ? pharmacyMedicinesInStock.split(",").map((med) => med.trim())
-    : [];
+  const medicinesArray = Array.isArray(pharmacyMedicinesInStock)
+    ? pharmacyMedicinesInStock
+    : (pharmacyMedicinesInStock
+      ? pharmacyMedicinesInStock.split(",").map((med) => med.trim())
+      : []);
 
   try {
     const existingPharmacy = await pharmacies.findOne({
@@ -37,9 +39,9 @@ exports.addPharmacyController = async (req, res) => {
         pharmacyStatus,
         pharmacyLocationLink,
         pharmacyRating,
-        pharmacyReviews: pharmacyReviews || "0", // Default if not provided
+        pharmacyReviews: pharmacyReviews || "0",
         pharmacyMedicinesInStock: medicinesArray,
-        pharmacyImage,
+        pharmacyImage: image,
       });
 
       await newPharmacy.save();
@@ -47,13 +49,11 @@ exports.addPharmacyController = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json(err);
-    console.log(err);
   }
 };
 
 // update pharmacy
 exports.updatePharmacyController = async (req, res) => {
-  console.log("Inside Update Pharmacy Controller");
   const { id } = req.params;
   const {
     pharmacyName,
@@ -67,12 +67,13 @@ exports.updatePharmacyController = async (req, res) => {
     pharmacyImage,
   } = req.body;
 
-  const uploadImage = req.file ? req.file.filename : pharmacyImage;
+  const uploadImage = req.file ? req.file.path : pharmacyImage;
 
-   // process medicines stock: split by comma and trim
-   const medicinesArray = pharmacyMedicinesInStock
-   ? pharmacyMedicinesInStock.split(",").map((med) => med.trim())
-   : [];
+  const medicinesArray = Array.isArray(pharmacyMedicinesInStock)
+    ? pharmacyMedicinesInStock
+    : (pharmacyMedicinesInStock
+      ? pharmacyMedicinesInStock.split(",").map((med) => med.trim())
+      : []);
 
   try {
     const updatePharmacy = await pharmacies.findByIdAndUpdate(
@@ -90,7 +91,6 @@ exports.updatePharmacyController = async (req, res) => {
       },
       { new: true }
     );
-    await updatePharmacy.save();
     res.status(200).json(updatePharmacy);
   } catch (err) {
     res.status(401).json(err);

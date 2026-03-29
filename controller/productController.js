@@ -4,7 +4,7 @@ const products = require("../model/productModel");
 exports.addProductController = async (req, res) => {
   console.log("Inside Add Product Controller");
   const { productName, brandName, category, description, price } = req.body;
-  const uploadedImage = req.file ? req.file.filename : null;
+  const uploadedImage = req.file ? req.file.path : null;
 
   if (!uploadedImage) {
     return res.status(401).json("Product image is required");
@@ -49,7 +49,7 @@ exports.getAllProductsController = async (req, res) => {
 exports.updateProductController = async (req, res) => {
   const { id } = req.params;
   const { productName, brandName, category, description, price, uploadedImg } = req.body;
-  const uploadImage = req.file ? req.file.filename : uploadedImg;
+  const uploadImage = req.file ? req.file.path : uploadedImg;
 
   try {
     const updateProduct = await products.findByIdAndUpdate(
@@ -64,7 +64,6 @@ exports.updateProductController = async (req, res) => {
       },
       { new: true }
     );
-    await updateProduct.save();
     res.status(200).json(updateProduct);
   } catch (err) {
     res.status(401).json(err);

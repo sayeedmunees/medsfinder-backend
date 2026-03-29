@@ -13,11 +13,9 @@ exports.addMedicineController = async (req, res) => {
     uploadedImg,
   } = req.body;
 
-  const uploadedImage = req.file.filename;
-  console.log(uploadedImage);
+  const uploadedImage = req.file ? req.file.path : null;
 
   const email = req.payload;
-  console.log(email);
 
   try {
     const existingMedicine = await medicines.findOne({
@@ -35,7 +33,7 @@ exports.addMedicineController = async (req, res) => {
         category,
         description,
         price,
-        uploadedImg : uploadedImage,
+        uploadedImg: uploadedImage,
       });
 
       await newMedicine.save();
@@ -49,7 +47,6 @@ exports.addMedicineController = async (req, res) => {
 
 // view all medicines
 exports.getAllMedicinesController = async (req, res) => {
-  console.log("Inside get All Medicines Controller");
   try {
     const allMedicines = await medicines.find();
     res.status(200).json(allMedicines);
@@ -60,11 +57,7 @@ exports.getAllMedicinesController = async (req, res) => {
 
 // to get a medicines
 exports.getAMedicinesController = async (req, res) => {
-  console.log("inside get A Medicines Controller");
-
   const { id } = req.params;
-  console.log(id);
-
   try {
     const aMedicine = await medicines.findOne({ _id: id });
     res.status(200).json(aMedicine);
@@ -76,7 +69,6 @@ exports.getAMedicinesController = async (req, res) => {
 // search medicines
 exports.searchMedicineController = async (req, res) => {
   const { search } = req.query;
-  console.log("Search term:", search);
   try {
     const query = {
       medicineName: { $regex: search, $options: "i" },
@@ -102,7 +94,7 @@ exports.updateMedicineController = async (req, res) => {
     uploadedImg,
   } = req.body;
 
-  const uploadImage = req.file ? req.file.filename : uploadedImg;
+  const uploadImage = req.file ? req.file.path : uploadedImg;
 
   try {
     const updateMedicine = await medicines.findByIdAndUpdate(
@@ -118,7 +110,6 @@ exports.updateMedicineController = async (req, res) => {
       },
       { new: true }
     );
-    await updateMedicine.save();
     res.status(200).json(updateMedicine);
   } catch (err) {
     res.status(401).json(err);
