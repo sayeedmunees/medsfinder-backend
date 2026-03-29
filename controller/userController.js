@@ -46,7 +46,8 @@ exports.signInController = async (req, res) => {
       if (validPassword) {
         const token = jwt.sign(
           { userMail: existingUser.email, role: existingUser.role },
-          process.env.JWT_SECRET
+          process.env.JWT_SECRET,
+          { expiresIn: "24h" }
         );
         // Sanitize user object
         const { password: _, ...userData } = existingUser._doc;
@@ -85,7 +86,8 @@ exports.googleSignInController = async (req, res) => {
     if (existingUser) {
       const token = jwt.sign(
         { userMail: existingUser.email, role: existingUser.role },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
       );
       const { password: _, ...userData } = existingUser._doc;
       res.status(200).json({ existingUser: userData, token });
@@ -99,7 +101,8 @@ exports.googleSignInController = async (req, res) => {
       await newUser.save();
       const token = jwt.sign(
         { userMail: newUser.email, role: newUser.role },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
       );
       const { password: _, ...userData } = newUser._doc;
       res.status(200).json({ existingUser: userData, token });
