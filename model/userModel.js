@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
   savedPharmacies: {
     type: Array,
   },
+  role: {
+    type: String,
+    enum: ["user", "assistant", "editor", "admin"],
+    default: "user",
+  },
 });
 
 const users = mongoose.model("users", userSchema);

@@ -5,7 +5,7 @@ const userController = require("./controller/userController.js");
 const medicineController = require("./controller/medicineController.js");
 const pharmacyController = require("./controller/pharmacyController.js");
 const productController = require("./controller/productController.js");
-const jwtAdminMiddleware = require("./middleware/jwtAdminMiddleware.js");
+const { isAssistant, isEditor, isAdmin } = require("./middleware/roleMiddleware.js");
 const jwtMiddleware = require("./middleware/jwtMiddleware.js");
 const multerConfig = require("./middleware/multerMiddleware.js");
 
@@ -37,16 +37,16 @@ route.post("/user/save-pharmacy", jwtMiddleware, userController.toggleSavedPharm
 route.get("/user/saved-items", jwtMiddleware, userController.getSavedItemsController);
 
 // path for admin dashboard stats
-route.get("/admin/dashboard-stats", jwtAdminMiddleware, userController.getAdminDashboardStatsController);
+route.get("/admin/dashboard-stats", isAssistant, userController.getAdminDashboardStatsController);
 
 // path for updating admin profile
-route.put("/admin/update-profile", jwtAdminMiddleware, userController.updateAdminProfileController);
+route.put("/admin/update-profile", isAssistant, userController.updateAdminProfileController);
 
 
 
 route.post(
   "/add-medicine",
-  jwtAdminMiddleware,
+  isAssistant,
   multerConfig.single("uploadedImg"),
   medicineController.addMedicineController
 );
@@ -65,7 +65,7 @@ route.get("/search-medicines", medicineController.searchMedicineController);
 // path for update medicine
 route.put(
   "/update-medicine/:id",
-  jwtAdminMiddleware,
+  isEditor,
   multerConfig.single("uploadedImg"),
   medicineController.updateMedicineController
 );
@@ -73,14 +73,14 @@ route.put(
 // path for delete medicine
 route.delete(
   "/delete-medicine/:id",
-  jwtAdminMiddleware,
+  isAdmin,
   medicineController.deleteMedicineController
 );
 
 // path for adding pharmacy
 route.post(
   "/add-pharmacy",
-  jwtAdminMiddleware,
+  isAssistant,
   multerConfig.single("pharmacyImage"),
   pharmacyController.addPharmacyController
 );
@@ -88,7 +88,7 @@ route.post(
 // path for update pharmacy
 route.put(
   "/update-pharmacy/:id",
-  jwtAdminMiddleware,
+  isEditor,
   multerConfig.single("pharmacyImage"),
   pharmacyController.updatePharmacyController
 );
@@ -96,7 +96,7 @@ route.put(
 // path for delete pharmacy
 route.delete(
   "/delete-pharmacy/:id",
-  jwtAdminMiddleware,
+  isAdmin,
   pharmacyController.deletePharmacyController
 );
 
@@ -106,7 +106,7 @@ route.get("/all-pharmacies", pharmacyController.getAllPharmaciesController);
 // Product Admin Routes
 route.post(
   "/add-product",
-  jwtAdminMiddleware,
+  isAssistant,
   multerConfig.single("uploadedImg"),
   productController.addProductController
 );
@@ -115,14 +115,14 @@ route.get("/all-products", productController.getAllProductsController);
 
 route.put(
   "/update-product/:id",
-  jwtAdminMiddleware,
+  isEditor,
   multerConfig.single("uploadedImg"),
   productController.updateProductController
 );
 
 route.delete(
   "/delete-product/:id",
-  jwtAdminMiddleware,
+  isAdmin,
   productController.deleteProductController
 );
 
