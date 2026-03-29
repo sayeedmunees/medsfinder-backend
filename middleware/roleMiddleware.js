@@ -8,7 +8,7 @@ const checkRole = (allowedRoles) => (req, res, next) => {
   }
 
   try {
-    const jwtResponse = jwt.verify(token, "secretkey");
+    const jwtResponse = jwt.verify(token, process.env.JWT_SECRET);
     req.payload = jwtResponse.userMail;
     req.role = jwtResponse.role;
 

@@ -35,7 +35,7 @@ exports.signInController = async (req, res) => {
     const existingUser = await users.findOne({ email });
     if (existingUser) {
       if (existingUser.password == password) {
-        const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, "secretkey");
+        const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, process.env.JWT_SECRET);
         res.status(200).json({ existingUser, token });
       } else {
         res.status(401).json("Incorrect Password");
@@ -57,7 +57,7 @@ exports.googleSignInController = async (req, res) => {
     const existingUser = await users.findOne({ email });
 
     if (existingUser) {
-      const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, "secretkey");
+      const token = jwt.sign({ userMail: existingUser.email, role: existingUser.role }, process.env.JWT_SECRET);
       res.status(200).json({ existingUser, token });
     } else {
       const newUser = new users({
@@ -67,7 +67,7 @@ exports.googleSignInController = async (req, res) => {
         profile,
       });
       await newUser.save();
-      const token = jwt.sign({ userMail: newUser.email, role: newUser.role }, "secretkey");
+      const token = jwt.sign({ userMail: newUser.email, role: newUser.role }, process.env.JWT_SECRET);
       res.status(200).json({ existingUser: newUser, token });
     }
   } catch (err) {
