@@ -8,18 +8,19 @@ const productController = require("./controller/productController.js");
 const { isAssistant, isEditor, isAdmin } = require("./middleware/roleMiddleware.js");
 const jwtMiddleware = require("./middleware/jwtMiddleware.js");
 const multerConfig = require("./middleware/multerMiddleware.js");
+const { authLimiter, searchLimiter } = require("./middleware/rateLimitMiddleware.js");
 
 // create instance
 const route = new express.Router();
 
 // path for signup
-route.post("/signup", userController.signUpController);
+route.post("/signup", authLimiter, userController.signUpController);
 
 // path for signin
-route.post("/signin", userController.signInController);
+route.post("/signin", authLimiter, userController.signInController);
 
 // path for google signin
-route.post("/google-signin", userController.googleSignInController);
+route.post("/google-signin", authLimiter, userController.googleSignInController);
 
 // path for getting user details
 route.get("/user/profile", jwtMiddleware, userController.getUserProfileController);
@@ -60,7 +61,7 @@ route.get(
 route.get("/view-medicine/:id", medicineController.getAMedicinesController);
 
 // path for search medicine
-route.get("/search-medicines", medicineController.searchMedicineController);
+route.get("/search-medicines", searchLimiter, medicineController.searchMedicineController);
 
 // path for update medicine
 route.put(

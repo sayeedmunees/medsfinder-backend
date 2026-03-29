@@ -9,6 +9,8 @@ const cors = require("cors");
 const route = require("./routes.js");
 // import db connection files
 require("./databaseConnection.js");
+// import rate limit
+const { globalLimiter } = require("./middleware/rateLimitMiddleware.js");
 
 // create server
 const medsfinderServer = express();
@@ -16,6 +18,7 @@ const medsfinderServer = express();
 // server using cors
 medsfinderServer.use(cors());
 medsfinderServer.use(express.json()); //parse middleware
+medsfinderServer.use(globalLimiter); // Apply global rate limit to all requests
 medsfinderServer.use(route);
 
 // export the uploads folder from the server side
