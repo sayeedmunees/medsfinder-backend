@@ -18,7 +18,19 @@ const medsfinderServer = express();
 // server using cors
 medsfinderServer.use(
   cors({
-    origin: process.env.FRONTEND_URL, // e.g., https://medsfinderbeta.vercel.app/
+    origin: (origin, callback) => {
+      const liveURL = process.env.FRONTEND_URL?.trim().replace(/\/$/, "");
+      const isProduction = process.env.NODE_ENV === "production";
+      
+      // In production, strictly only allow your Vercel URL
+      const allowedOrigins = isProduction ? [liveURL] : ["http://localhost:5173", liveURL];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Security Alert: Not allowed by CORS policies."));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
