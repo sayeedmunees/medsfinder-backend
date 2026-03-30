@@ -18,7 +18,7 @@ const medsfinderServer = express();
 // server using cors
 medsfinderServer.use(
   cors({
-    origin: "http://localhost:5173", // Restrict to your frontend URL
+    origin: process.env.FRONTEND_URL, // e.g., https://medsfinderbeta.vercel.app/
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
